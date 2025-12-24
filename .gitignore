@@ -1,0 +1,36 @@
+# Dependencies
+/vendor/
+/node_modules/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+*.env.local
+
+# Uploads (keep folder but ignore contents)
+/uploads/*
+!/uploads/.gitkeep
+
+# Logs
+*.log
+error_log
+
+# Config with real credentials (use config.example.php instead)
+config_infinityfree.php
+
+# Compressed files
+*.zip
+*.tar.gz
+
+# Temporary files
+*.tmp
+*.temp
