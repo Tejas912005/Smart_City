@@ -73,16 +73,16 @@
             </div>
             <div class="hero-stats">
               <div class="hero-stat">
-                <strong>50+</strong>
-                <span>Cities</span>
+                <strong></strong>
+                <span></span>
               </div>
               <div class="hero-stat">
-                <strong>1M+</strong>
-                <span>Reports</span>
+                <strong></strong>
+                <span></span>
               </div>
               <div class="hero-stat">
-                <strong>4.8★</strong>
-                <span>Rating</span>
+                <strong></strong>
+                <span></span>
               </div>
             </div>
           </div>

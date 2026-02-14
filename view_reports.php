@@ -1,7 +1,17 @@
 <?php
-session_start();
-require 'db/connect.php';
-$user_id = $_SESSION['user_id'] ?? null;
+include 'config.php';
+
+if (!isset($_SESSION['user_id'])) {
+    header("Location: login.php");
+    exit;
+}
+
+$user_id = (int) $_SESSION['user_id'];
+
+$stmt = $conn->prepare("SELECT r.*, u.name FROM reports r LEFT JOIN users u ON r.user_id=u.id WHERE r.user_id=? ORDER BY r.id DESC");
+$stmt->bind_param("i", $user_id);
+$stmt->execute();
+$res = $stmt->get_result();
 ?>
 <!doctype html>
 <html><head><meta charset="utf-8"><title>My Reports</title>
@@ -10,10 +20,8 @@ $user_id = $_SESSION['user_id'] ?? null;
 </head>
 <body class="p-4">
 <div class="container">
-  <h3><?php echo $user_id ? 'My Reports' : 'All Reports'; ?></h3>
+  <h3>My Reports</h3>
   <?php
-  if($user_id) $res = $conn->query("SELECT r.*, u.name FROM reports r LEFT JOIN users u ON r.user_id=u.id WHERE r.user_id=$user_id ORDER BY r.id DESC");
-  else $res = $conn->query("SELECT r.*, u.name FROM reports r LEFT JOIN users u ON r.user_id=u.id ORDER BY r.id DESC");
   while($row = $res->fetch_assoc()):
   ?>
   <div class="card mb-3">
@@ -28,7 +36,7 @@ $user_id = $_SESSION['user_id'] ?? null;
       </div>
     </div>
   </div>
-  <?php endwhile; $res->free(); $conn->close(); ?>
+  <?php endwhile; $res->free(); $stmt->close(); $conn->close(); ?>
 </div>
 </body>
 </html>

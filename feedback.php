@@ -1,5 +1,6 @@
 <?php
 include 'config.php'; // Includes DB Connection and session_start()
+include 'includes/csrf.php';
 
 $user_id = $_SESSION['user_id'] ?? null; // Get user ID if logged in, otherwise null
 $user_name = '';
@@ -22,20 +23,24 @@ if ($user_id) {
 
 // --- FORM HANDLING ---
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $name = $_POST['name'];
-    $email = $_POST['email'];
-    $rating = $_POST['rating'] ?? 5;
-    $message = $_POST['message'];
-
-    $stmt = $conn->prepare("INSERT INTO feedback (user_id, name, email, message) VALUES (?, ?, ?, ?)");
-    $stmt->bind_param("isss", $user_id, $name, $email, $message);
-
-    if ($stmt->execute()) {
-        $success_msg = "Thank you for your feedback! We appreciate your input.";
+    if (!csrf_verify()) {
+        $error_msg = "Invalid request. Please try again.";
     } else {
-        $error_msg = "There was an error sending your feedback. Please try again.";
+        $name = $_POST['name'];
+        $email = $_POST['email'];
+        $rating = $_POST['rating'] ?? 5;
+        $message = $_POST['message'];
+
+        $stmt = $conn->prepare("INSERT INTO feedback (user_id, name, email, message) VALUES (?, ?, ?, ?)");
+        $stmt->bind_param("isss", $user_id, $name, $email, $message);
+
+        if ($stmt->execute()) {
+            $success_msg = "Thank you for your feedback! We appreciate your input.";
+        } else {
+            $error_msg = "There was an error sending your feedback. Please try again.";
+        }
+        $stmt->close();
     }
-    $stmt->close();
 }
 $conn->close();
 ?>
@@ -98,7 +103,7 @@ $conn->close();
                 </div>
               </div>
               
-              <div class="feedback-stats">
+              <!-- <div class="feedback-stats">
                 <div class="stat">
                   <strong>500+</strong>
                   <span>Feedbacks Received</span>
@@ -107,7 +112,7 @@ $conn->close();
                   <strong>95%</strong>
                   <span>Acted Upon</span>
                 </div>
-              </div>
+              </div> -->
             </div>
           </div>
           
@@ -138,14 +143,15 @@ $conn->close();
               <?php endif; ?>
               
               <form method="POST" action="feedback.php">
+                <?php echo csrf_field(); ?>
                 <div class="form-row">
                   <div class="form-group">
                     <label for="name"><i class="fas fa-user"></i>Your Name</label>
-                    <input type="text" id="name" name="name" value="<?php echo htmlspecialchars($user_name); ?>" placeholder="John Doe" required>
+                    <input type="text" id="name" name="name" value="<?php echo htmlspecialchars($user_name); ?>"required>
                   </div>
                   <div class="form-group">
                     <label for="email"><i class="fas fa-envelope"></i>Your Email</label>
-                    <input type="email" id="email" name="email" value="<?php echo htmlspecialchars($user_email); ?>" placeholder="john@example.com" required>
+                    <input type="email" id="email" name="email" value="<?php echo htmlspecialchars($user_email); ?>"required>
                   </div>
                 </div>
                 

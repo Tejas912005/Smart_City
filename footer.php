@@ -1,5 +1,5 @@
 <!-- Newsletter Section - Modern -->
-<section class="newsletter-new">
+<!-- <section class="newsletter-new">
   <div class="container">
     <div class="newsletter-card">
       <div class="newsletter-left">
@@ -28,7 +28,7 @@
       </div>
     </div>
   </div>
-</section>
+</section> -->
 
 <style>
 .newsletter-new {
@@ -203,19 +203,19 @@
           <div class="contact-cards">
             <a href="mailto:support@smartcity.gov.in" class="contact-card">
               <i class="fas fa-envelope"></i>
-              <span>support@smartcity.gov.in</span>
+              <span>tejaschaudhari976@gmail.com</span>
             </a>
             <a href="tel:+919876543210" class="contact-card">
               <i class="fas fa-phone-alt"></i>
-              <span>+91 98765 43210</span>
+              <span>+91 88068 85738</span>
             </a>
           </div>
           <div class="social-links">
-            <a href="https://facebook.com/smartcityportal" target="_blank"><i class="fab fa-facebook-f"></i></a>
-            <a href="https://twitter.com/smartcityportal" target="_blank"><i class="fab fa-twitter"></i></a>
-            <a href="https://instagram.com/smartcityportal" target="_blank"><i class="fab fa-instagram"></i></a>
+            <a href="https://facebook.com/" target="_blank"><i class="fab fa-facebook-f"></i></a>
+            <a href="https://twitter.com/" target="_blank"><i class="fab fa-twitter"></i></a>
+            <a href="https://instagram.com/" target="_blank"><i class="fab fa-instagram"></i></a>
             <a href="https://linkedin.com/company/smartcityportal" target="_blank"><i class="fab fa-linkedin-in"></i></a>
-            <a href="https://youtube.com/@smartcityportal" target="_blank"><i class="fab fa-youtube"></i></a>
+            <a href="https://youtube.com/" target="_blank"><i class="fab fa-youtube"></i></a>
           </div>
         </div>
       </div>
@@ -405,36 +405,11 @@
 </style>
 
 <!-- Back to Top Button -->
-<button id="backToTop" class="back-to-top" onclick="scrollToTop()" title="Back to Top">
-  <i class="fas fa-arrow-up"></i>
+<button id="backToTop" class="back-to-top" onclick="scrollToTop()" title="Back to Top" aria-label="Scroll back to top of page">
+  <i class="fas fa-arrow-up" aria-hidden="true"></i>
 </button>
 
-<script>
-// Newsletter handler
-function handleNewsletter(e) {
-  e.preventDefault();
-  const email = document.getElementById('newsletterEmail').value;
-  alert('Thank you for subscribing with: ' + email + '\nWe\'ll keep you updated!');
-  document.getElementById('newsletterEmail').value = '';
-  return false;
-}
-
-// Back to Top functionality
-window.onscroll = function() {
-  const btn = document.getElementById('backToTop');
-  if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) {
-    btn.classList.add('show');
-  } else {
-    btn.classList.remove('show');
-  }
-};
-
-function scrollToTop() {
-  window.scrollTo({
-    top: 0,
-    behavior: 'smooth'
-  });
-}
-</script>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="assets/js/common.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" defer></script>
+</body>
+</html>

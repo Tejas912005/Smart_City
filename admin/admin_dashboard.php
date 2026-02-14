@@ -1,6 +1,7 @@
 <?php
 include 'admin_header.php';
 include '../config.php';
+include '../includes/csrf.php';
 
 // Get filter values
 $filter_category = $_GET['category'] ?? '';
@@ -39,19 +40,38 @@ if (!empty($filter_date_to)) {
 
 $where_sql = count($where_clauses) > 0 ? 'WHERE ' . implode(' AND ', $where_clauses) : '';
 
+// Pagination settings
+$per_page = 10;
+$page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
+$offset = ($page - 1) * $per_page;
+
+// Get total count for pagination
+$count_query = "SELECT COUNT(*) as total FROM reports r $where_sql";
+if (count($params) > 0) {
+    $count_stmt = $conn->prepare($count_query);
+    $count_stmt->bind_param($types, ...$params);
+    $count_stmt->execute();
+    $total_filtered = $count_stmt->get_result()->fetch_assoc()['total'];
+    $count_stmt->close();
+} else {
+    $total_filtered = $conn->query($count_query)->fetch_assoc()['total'];
+}
+$total_pages = ceil($total_filtered / $per_page);
+
 // Fetch Stats
 $total_users = $conn->query("SELECT COUNT(*) AS count FROM users")->fetch_assoc()['count'];
 $total_reports = $conn->query("SELECT COUNT(*) AS count FROM reports")->fetch_assoc()['count'];
 $pending_reports = $conn->query("SELECT COUNT(*) AS count FROM reports WHERE status = 'Pending'")->fetch_assoc()['count'];
 $total_feedback = $conn->query("SELECT COUNT(*) AS count FROM feedback")->fetch_assoc()['count'];
 
-// Fetch filtered reports
+// Fetch filtered reports with pagination
 $query = "
     SELECT r.*, u.name AS user_name 
     FROM reports r
     LEFT JOIN users u ON r.user_id = u.id
     $where_sql
     ORDER BY r.status = 'Pending' DESC, r.id DESC
+    LIMIT $per_page OFFSET $offset
 ";
 
 if (count($params) > 0) {
@@ -248,8 +268,8 @@ $feedback_result = $conn->query("SELECT * FROM feedback ORDER BY id DESC");
                             <td style="max-width: 200px;"><?php echo htmlspecialchars(substr($row['description'], 0, 50)) . '...'; ?></td>
                             <td>
                                 <?php if (!empty($row['image'])): ?>
-                                    <a href="../uploads/<?php echo $row['image']; ?>" target="_blank">
-                                        <img src="../uploads/<?php echo $row['image']; ?>" alt="Report Image" class="report-image-thumbnail">
+                                    <a href="../uploads/<?php echo htmlspecialchars($row['image'], ENT_QUOTES, 'UTF-8'); ?>" target="_blank">
+                                        <img src="../uploads/<?php echo htmlspecialchars($row['image'], ENT_QUOTES, 'UTF-8'); ?>" alt="Report Image" class="report-image-thumbnail" loading="lazy">
                                     </a>
                                 <?php else: ?>
                                     <span class="text-muted">No Image</span>
@@ -267,6 +287,7 @@ $feedback_result = $conn->query("SELECT * FROM feedback ORDER BY id DESC");
                             </td>
                             <td>
                                 <form method="POST" action="update_status.php" style="min-width: 180px;">
+                                    <?php echo csrf_field(); ?>
                                     <input type="hidden" name="report_id" value="<?php echo $row['id']; ?>">
                                     <div class="input-group input-group-sm">
                                         <select name="status" class="form-select form-select-sm">
@@ -291,6 +312,43 @@ $feedback_result = $conn->query("SELECT * FROM feedback ORDER BY id DESC");
             </tbody>
         </table>
     </div>
+    
+    <!-- Pagination Navigation -->
+    <?php if ($total_pages > 1): ?>
+    <nav aria-label="Reports pagination" class="mt-3">
+        <ul class="pagination justify-content-center mb-0">
+            <?php 
+            // Build query string for filters
+            $query_params = $_GET;
+            unset($query_params['page']);
+            $query_string = http_build_query($query_params);
+            $base_url = 'admin_dashboard.php?' . ($query_string ? $query_string . '&' : '');
+            ?>
+            
+            <li class="page-item <?php echo $page <= 1 ? 'disabled' : ''; ?>">
+                <a class="page-link" href="<?php echo $base_url . 'page=' . ($page - 1); ?>#reports-table">
+                    <i class="fas fa-chevron-left"></i> Previous
+                </a>
+            </li>
+            
+            <?php for ($i = max(1, $page - 2); $i <= min($total_pages, $page + 2); $i++): ?>
+            <li class="page-item <?php echo $i == $page ? 'active' : ''; ?>">
+                <a class="page-link" href="<?php echo $base_url . 'page=' . $i; ?>#reports-table"><?php echo $i; ?></a>
+            </li>
+            <?php endfor; ?>
+            
+            <li class="page-item <?php echo $page >= $total_pages ? 'disabled' : ''; ?>">
+                <a class="page-link" href="<?php echo $base_url . 'page=' . ($page + 1); ?>#reports-table">
+                    Next <i class="fas fa-chevron-right"></i>
+                </a>
+            </li>
+        </ul>
+        <p class="text-center text-muted mt-2 mb-0">
+            Showing page <?php echo $page; ?> of <?php echo $total_pages; ?> 
+            (<?php echo $total_filtered; ?> total reports)
+        </p>
+    </nav>
+    <?php endif; ?>
 </div>
 
 <!-- Users Table -->

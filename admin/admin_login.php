@@ -1,5 +1,7 @@
 <?php
 include '../config.php'; // Go UP one level to find config.php
+include '../includes/csrf.php';
+include '../includes/rate_limit.php';
 
 // If admin is already logged in, redirect to dashboard
 if (isset($_SESSION['admin_logged_in'])) {
@@ -8,23 +10,60 @@ if (isset($_SESSION['admin_logged_in'])) {
 }
 
 $error_msg = '';
+$rate_limiter = new RateLimiter(5, 900); // 5 attempts, 15 min lockout
+$client_ip = get_client_ip();
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $username = $_POST['username'];
-    $password = $_POST['password'];
+// Check if IP is blocked
+if ($rate_limiter->isBlocked($client_ip)) {
+    $remaining = ceil($rate_limiter->getRemainingTime($client_ip) / 60);
+    $error_msg = "Too many failed attempts. Please try again in {$remaining} minutes.";
+}
 
-    // --- Hardcoded Admin Credentials (as requested) ---
-    // You can change 'tejas' and 'tejas123' to whatever you want
-    if ($username === 'tejas' && $password === 'tejas123') {
-        
-        // Success! Set the session
-        $_SESSION['admin_logged_in'] = true;
-        $_SESSION['admin_name'] = 'Tejas'; // You can store the name
-        
-        header("Location: admin_dashboard.php");
-        exit;
+if ($_SERVER["REQUEST_METHOD"] == "POST" && empty($error_msg)) {
+    if (!csrf_verify()) {
+        $error_msg = "Invalid request. Please try again.";
     } else {
-        $error_msg = "Invalid admin credentials.";
+        $username = htmlspecialchars(trim($_POST['username']), ENT_QUOTES, 'UTF-8');
+        $password = $_POST['password'];
+
+        $authenticated = false;
+        $admin_name = '';
+
+        // Try database authentication first
+        $stmt = $conn->prepare("SELECT id, username, password, name FROM admins WHERE username = ?");
+        if ($stmt) {
+            $stmt->bind_param("s", $username);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            
+            if ($result->num_rows === 1) {
+                $admin = $result->fetch_assoc();
+                if (password_verify($password, $admin['password'])) {
+                    $authenticated = true;
+                    $admin_name = $admin['name'];
+                }
+            }
+            $stmt->close();
+        }
+        
+        // Fallback to hardcoded credentials if DB auth fails or table doesn't exist
+        if (!$authenticated && $username === 'tejas' && $password === 'tejas123') {
+            $authenticated = true;
+            $admin_name = 'Tejas';
+        }
+
+        if ($authenticated) {
+            // Success - regenerate session ID to prevent fixation
+            session_regenerate_id(true);
+            $_SESSION['admin_logged_in'] = true;
+            $_SESSION['admin_name'] = $admin_name;
+            $rate_limiter->reset($client_ip);
+            header("Location: admin_dashboard.php");
+            exit;
+        } else {
+            $rate_limiter->recordFailure($client_ip);
+            $error_msg = "Invalid admin credentials.";
+        }
     }
 }
 ?>
@@ -55,6 +94,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <?php endif; ?>
 
     <form method="POST" action="admin_login.php">
+      <?php echo csrf_field(); ?>
       <div class="mb-3">
         <label for="username" class="form-label">Username</label>
         <input type="text" class="form-control form-control-dark" id="username" name="username" required>

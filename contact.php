@@ -1,21 +1,26 @@
 <?php 
 include 'config.php';
+include 'includes/csrf.php';
 
 $success_msg = '';
 $error_msg = '';
 
 // Handle contact form submission
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $name = $_POST['name'] ?? '';
-    $email = $_POST['email'] ?? '';
-    $subject = $_POST['subject'] ?? '';
-    $message = $_POST['message'] ?? '';
-    
-    // For now, just show success (you can add email sending logic later)
-    if (!empty($name) && !empty($email) && !empty($message)) {
-        $success_msg = "Thank you for reaching out! We'll get back to you within 24-48 hours.";
+    if (!csrf_verify()) {
+        $error_msg = "Invalid request. Please try again.";
     } else {
-        $error_msg = "Please fill in all required fields.";
+        $name = $_POST['name'] ?? '';
+        $email = $_POST['email'] ?? '';
+        $subject = $_POST['subject'] ?? '';
+        $message = $_POST['message'] ?? '';
+        
+        // For now, just show success (you can add email sending logic later)
+        if (!empty($name) && !empty($email) && !empty($message)) {
+            $success_msg = "Thank you for reaching out! We'll get back to you within 24-48 hours.";
+        } else {
+            $error_msg = "Please fill in all required fields.";
+        }
     }
 }
 ?>
@@ -42,7 +47,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
           <div class="contact-info-content">
             <h5>Email Us</h5>
             <p>For general inquiries and support</p>
-            <a href="mailto:support@smartcity.gov.in" class="contact-link">support@smartcity.gov.in</a>
+            <a href="mailto:support@smartcity.gov.in" class="contact-link">tejaschaudhari976@gmail.com</a>
           </div>
         </div>
 
@@ -54,7 +59,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
           <div class="contact-info-content">
             <h5>Call Us</h5>
             <p>For urgent issues and emergencies</p>
-            <a href="tel:+919876543210" class="contact-link">+91 987 654 3210</a>
+            <a href="tel:+918806885738" class="contact-link">+91 88068 5738</a>
           </div>
         </div>
 
@@ -106,19 +111,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         <?php if (empty($success_msg)): ?>
         <form method="POST" action="contact.php">
+          <?php echo csrf_field(); ?>
           <div class="row">
             <div class="col-md-6 mb-3">
               <label for="name" class="form-label-styled">Your Name <span class="text-danger">*</span></label>
               <div class="input-group">
                 <span class="input-group-text"><i class="fas fa-user"></i></span>
-                <input type="text" class="form-control form-control-light" id="name" name="name" placeholder="John Doe" required>
+                <input type="text" class="form-control form-control-light" id="name" name="name" required>
               </div>
             </div>
             <div class="col-md-6 mb-3">
               <label for="email" class="form-label-styled">Your Email <span class="text-danger">*</span></label>
               <div class="input-group">
                 <span class="input-group-text"><i class="fas fa-envelope"></i></span>
-                <input type="email" class="form-control form-control-light" id="email" name="email" placeholder="you@example.com" required>
+                <input type="email" class="form-control form-control-light" id="email" name="email" required>
               </div>
             </div>
           </div>

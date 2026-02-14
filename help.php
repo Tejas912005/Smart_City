@@ -126,53 +126,7 @@
   </div>
 </main>
 
-<style>
-.policy-page { max-width: 800px; margin: 0 auto; }
-.policy-header { text-align: center; margin-bottom: 40px; }
-.policy-header i { font-size: 3rem; color: #6366f1; margin-bottom: 15px; }
-.policy-header h1 { font-size: 2.5rem; font-weight: 800; color: #1e293b; margin-bottom: 10px; }
-.policy-header p { color: #64748b; }
-.policy-content { background: white; border-radius: 20px; padding: 40px; box-shadow: 0 10px 40px rgba(0,0,0,0.08); }
-.faq-search .input-group-text { background: #f8fafc; border-right: none; }
-.faq-search input { border-left: none; }
-.faq-search input:focus { box-shadow: none; border-color: #e5e7eb; }
-.faq-item { border: 1px solid #e5e7eb; border-radius: 12px; margin-bottom: 15px; overflow: hidden; }
-.faq-question { width: 100%; background: #f8fafc; border: none; padding: 20px; text-align: left; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: all 0.3s; }
-.faq-question:hover { background: #f1f5f9; }
-.faq-question span { font-weight: 600; color: #1e293b; font-size: 1rem; }
-.faq-question i { color: #6366f1; transition: transform 0.3s; }
-.faq-question.active i { transform: rotate(180deg); }
-.faq-answer { padding: 0 20px; max-height: 0; overflow: hidden; transition: all 0.3s; background: white; }
-.faq-answer.show { padding: 20px; max-height: 500px; }
-.faq-answer p, .faq-answer li { color: #475569; line-height: 1.7; }
-.faq-answer a { color: #6366f1; font-weight: 600; }
-.contact-support h3 { font-weight: 700; color: #1e293b; }
-.contact-support p { color: #64748b; margin-bottom: 20px; }
-</style>
-
-<script>
-function toggleFaq(btn) {
-  const answer = btn.nextElementSibling;
-  const isOpen = answer.classList.contains('show');
-  
-  // Close all
-  document.querySelectorAll('.faq-answer').forEach(a => a.classList.remove('show'));
-  document.querySelectorAll('.faq-question').forEach(q => q.classList.remove('active'));
-  
-  // Open clicked if was closed
-  if (!isOpen) {
-    answer.classList.add('show');
-    btn.classList.add('active');
-  }
-}
-
-function filterFAQs() {
-  const search = document.getElementById('faqSearch').value.toLowerCase();
-  document.querySelectorAll('.faq-item').forEach(item => {
-    const text = item.textContent.toLowerCase();
-    item.style.display = text.includes(search) ? 'block' : 'none';
-  });
-}
-</script>
+<?php include 'includes/policy-styles.php'; ?>
+<?php include 'includes/help-styles.php'; ?>
 
 <?php include 'footer.php'; ?>

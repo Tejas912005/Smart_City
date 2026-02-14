@@ -13,37 +13,26 @@ $user_id = $_SESSION['user_id'];
 $user_name = $_SESSION['user_name'];
 
 // --- DATABASE QUERIES ---
-// We need to fetch 3 stats for the user: Total, Pending, and Resolved reports.
+// Single query for all report counts + reports list
+$stmt_stats = $conn->prepare("
+  SELECT
+    COUNT(*) AS total_reports,
+    SUM(CASE WHEN status = 'Pending' THEN 1 ELSE 0 END) AS pending_reports,
+    SUM(CASE WHEN status = 'In Progress' THEN 1 ELSE 0 END) AS progress_reports,
+    SUM(CASE WHEN status = 'Resolved' THEN 1 ELSE 0 END) AS resolved_reports
+  FROM reports WHERE user_id = ?
+");
+$stmt_stats->bind_param("i", $user_id);
+$stmt_stats->execute();
+$stats = $stmt_stats->get_result()->fetch_assoc();
+$stmt_stats->close();
 
-// 1. Get TOTAL reports count
-$stmt_total = $conn->prepare("SELECT COUNT(*) AS total_reports FROM reports WHERE user_id = ?");
-$stmt_total->bind_param("i", $user_id);
-$stmt_total->execute();
-$total_reports = $stmt_total->get_result()->fetch_assoc()['total_reports'];
-$stmt_total->close();
+$total_reports = (int) $stats['total_reports'];
+$pending_reports = (int) $stats['pending_reports'];
+$progress_reports = (int) $stats['progress_reports'];
+$resolved_reports = (int) $stats['resolved_reports'];
 
-// 2. Get PENDING reports count
-$stmt_pending = $conn->prepare("SELECT COUNT(*) AS pending_reports FROM reports WHERE user_id = ? AND status = 'Pending'");
-$stmt_pending->bind_param("i", $user_id);
-$stmt_pending->execute();
-$pending_reports = $stmt_pending->get_result()->fetch_assoc()['pending_reports'];
-$stmt_pending->close();
-
-// 3. Get RESOLVED reports count
-$stmt_resolved = $conn->prepare("SELECT COUNT(*) AS resolved_reports FROM reports WHERE user_id = ? AND status = 'Resolved'");
-$stmt_resolved->bind_param("i", $user_id);
-$stmt_resolved->execute();
-$resolved_reports = $stmt_resolved->get_result()->fetch_assoc()['resolved_reports'];
-$stmt_resolved->close();
-
-// 4. Get IN PROGRESS reports count
-$stmt_progress = $conn->prepare("SELECT COUNT(*) AS progress_reports FROM reports WHERE user_id = ? AND status = 'In Progress'");
-$stmt_progress->bind_param("i", $user_id);
-$stmt_progress->execute();
-$progress_reports = $stmt_progress->get_result()->fetch_assoc()['progress_reports'];
-$stmt_progress->close();
-
-// 5. Get the list of all user's reports for the table
+// Get the list of all user's reports for the table
 $stmt_reports = $conn->prepare("SELECT id, category, description, status, created_at FROM reports WHERE user_id = ? ORDER BY created_at DESC");
 $stmt_reports->bind_param("i", $user_id);
 $stmt_reports->execute();

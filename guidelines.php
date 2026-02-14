@@ -92,29 +92,7 @@
   </div>
 </main>
 
-<style>
-.policy-page { max-width: 900px; margin: 0 auto; }
-.policy-header { text-align: center; margin-bottom: 40px; }
-.policy-header i { font-size: 3rem; color: #6366f1; margin-bottom: 15px; }
-.policy-header h1 { font-size: 2.5rem; font-weight: 800; color: #1e293b; margin-bottom: 10px; }
-.policy-header p { color: #64748b; }
-.policy-content { background: white; border-radius: 20px; padding: 40px; box-shadow: 0 10px 40px rgba(0,0,0,0.08); }
-.policy-content section { margin-bottom: 30px; padding-bottom: 30px; border-bottom: 1px solid #e5e7eb; }
-.policy-content section:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
-.policy-content h2 { font-size: 1.3rem; font-weight: 700; color: #1e293b; margin-bottom: 20px; }
-.guidelines-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
-.guideline-item { background: #f8fafc; border-radius: 12px; padding: 20px; text-align: center; }
-.guideline-item i { font-size: 2rem; color: #6366f1; margin-bottom: 10px; }
-.guideline-item h4 { font-size: 1rem; font-weight: 700; color: #1e293b; margin-bottom: 5px; }
-.guideline-item p { font-size: 0.85rem; color: #64748b; margin: 0; }
-.steps-list { counter-reset: step; list-style: none; padding: 0; }
-.steps-list li { position: relative; padding-left: 60px; margin-bottom: 25px; }
-.steps-list li::before { content: counter(step); counter-increment: step; position: absolute; left: 0; top: 0; width: 40px; height: 40px; background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; }
-.steps-list li strong { display: block; font-size: 1.1rem; color: #1e293b; margin-bottom: 5px; }
-.steps-list li p { color: #64748b; margin: 0; }
-.not-allowed-list { list-style: none; padding: 0; }
-.not-allowed-list li { padding: 12px 15px; background: #fef2f2; border-radius: 8px; margin-bottom: 10px; color: #dc2626; display: flex; align-items: center; }
-.not-allowed-list li::before { content: "✕"; margin-right: 10px; font-weight: 700; }
-</style>
+<?php include 'includes/policy-styles.php'; ?>
+<?php include 'includes/guidelines-styles.php'; ?>
 
 <?php include 'footer.php'; ?>

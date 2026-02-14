@@ -1,5 +1,6 @@
 <?php
 include '../config.php'; // Get DB connection and start session
+include '../includes/csrf.php';
 
 // --- SECURITY CHECK ---
 if (!isset($_SESSION['admin_logged_in'])) {
@@ -8,6 +9,11 @@ if (!isset($_SESSION['admin_logged_in'])) {
 }
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    if (!csrf_verify()) {
+        // Invalid CSRF token - redirect back
+        header("Location: admin_dashboard.php#reports-table");
+        exit;
+    }
     
     // Get data from the form
     $report_id = $_POST['report_id'];
